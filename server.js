@@ -2,41 +2,67 @@ const express = require('express');
 const fs = require('fs');
 const request = require('request');
 const cheerio = require('cheerio');
+const pug = require('pug');
 
 const app = express();
 
+var date = new Date();
+var day = date.getDate();
+var month = date.getMonth() + 1 ;
+var year = date.getFullYear();
 
+var WOD  = {day: "", workout :""};
+
+app.set('views','./views');
+app.set('view engine', 'pug');
+
+app.get('/', function(req,res){
+
+	url = 'https://www.crossfit.com/workout/'+ year + '/' + month + '/' + day + '#/comments';
+    request(url, function(error,response, html){
+
+		if(!error){
+
+			var $ = cheerio.load(html);
+			var workout , day;
+
+			workout = $('.content').text();
+			day = $('h1').text();
+			WOD.workout = workout;
+			WOD.day = day;
+		    console.log(WOD);
+        }
+		 else{
+			console.log( error);
+		}
+	});
+
+    res.render('index',{heading:WOD.day   , content: 'testomg'  })
+});
 
 app.get('/scrape', function(req,res){
-	
-	url = 'https://www.crossfit.com/workout/2017/12/07#/comments';
+
+	url = 'https://www.crossfit.com/workout/'+ year + '/' + month + '/' + day + '#/comments';
 
 	request(url, function(error, response, html){
 		if(!error){
-		
+
 			var $ = cheerio.load(html);
-		
+
 			var workout , day;
-			var json = {day: "", workout :""};
 			workout = $('.content').text();
 			day = $('h1').text();
-			json.workout = workout;
-			json.day = day;
+			WOD.workout = workout;
+			WOD.day = day;
 		}
 		 else{
 			console.log( error);
 		}
-	fs.writeFile('output.json', JSON.stringify(json,null, 4), function(err){
-		console.log('File successfully written!');
 	})
-	
-	res.send('Check your console')
 
+	res.send(WOD);
 
-	});	
-
-})
-
+	});
 
 
 
