@@ -9,7 +9,7 @@ My first attempt at web scrapping. This implementation grabs a website hard code
 
 ``` $ npm install ```
 
-``` $ node server.js ```
+``` $ node scrape.js ```
 
 Will be adding more features soon!
 
